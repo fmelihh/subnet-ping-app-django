@@ -1,0 +1,18 @@
+[tool.poetry]
+name = "subnet-ping-app-django"
+version = "0.1.0"
+description = ""
+authors = ["Furkan Melih Ercan <furkan.ercan@b2metric.com>"]
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.10"
+django = "^4.2.5"
+djangorestframework = "^3.14.0"
+celery = {version = "^5.3.4", extras = ["redis"]}
+drf-spectacular = "^0.26.5"
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"

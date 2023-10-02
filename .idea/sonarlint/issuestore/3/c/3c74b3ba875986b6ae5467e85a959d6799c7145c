@@ -1,0 +1,6 @@
+
+xpython:S117¥"[Rename this local variable "ModelClass" to match the regular expression ^[_a-z][a-z0-9_]*$.(½»¥Îúÿÿÿÿ
+spython:S117¶"[Rename this local variable "ModelClass" to match the regular expression ^[_a-z][a-z0-9_]*$.(ëùÍş
+rpython:S3776È	"TRefactor this function to reduce its Cognitive Complexity from 19 to the 15 allowed.(²ˆ¹şÿÿÿÿ
+mpython:S3776÷
+"TRefactor this function to reduce its Cognitive Complexity from 24 to the 15 allowed.(Ò–šô

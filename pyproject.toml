@@ -10,7 +10,8 @@ python = "^3.10"
 django = "^4.2.5"
 djangorestframework = "^3.14.0"
 celery = {version = "^5.3.4", extras = ["redis"]}
-drf-spectacular = "^0.26.5"
+drf-spectacular = "0.26.2"
+netaddr = "^0.9.0"
 
 
 [build-system]

@@ -1,0 +1,60 @@
+services:
+  redis:
+    image: redis
+    hostname: redis
+    container_name: redis
+    restart: unless-stopped
+    command: >
+      bash -c "redis-server --appendonly yes "
+    environment:
+      REDIS_CACHE=redis://redis:6379/
+    ports:
+      - "6379:6379"
+    volumes:
+      - ./data/redis:/data
+
+  postgres:
+    image: postgres:latest
+    hostname: postgres
+    container_name: postgres
+    restart: unless-stopped
+    environment:
+      - POSTGRES_HOST=postgres
+      - PGDATA=/var/lib/postgresql/data/pgdata
+    ports:
+      - "5432:5432"
+    volumes:
+      - ./data/postgresql:/var/lib/postgresql/data
+
+  subnet-ping-app:
+    image: subnet-ping-app
+    build:
+      context: .
+      dockerfile: Dockerfile
+    hostname: subnet-ping-app
+    container_name: subnet-ping-app
+    user: root
+    command: "python manage.py runserver"
+    ports:
+      - "8000:8000"
+    depends_on:
+      - redis
+    volumes:
+      - .:/app
+
+  celery_worker:
+    hostname: subnet-ping-app-django-celery-worker
+    container_name: subnet-ping-app-django-celery-worker
+    build:
+      context: .
+      dockerfile: Dockerfile
+    environment:
+      - SET_CONTAINER_TIMEZONE='true'
+      - CONTAINER_TIMEZONE='Europe/Istanbul'
+      - TZ='Europe/Istanbul'
+    command: >
+      bash -c "celery -A subnet_ping_app worker -l info -E -Q celery.subnet_ping.default"
+    volumes:
+      - .:/app
+    depends_on:
+      - "redis"

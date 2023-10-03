@@ -10,7 +10,9 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/4.2/ref/settings/
 """
 
+import os
 from pathlib import Path
+
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -39,7 +41,6 @@ INSTALLED_APPS = [
     "django.contrib.staticfiles",
     "rest_framework",
     "drf_spectacular",
-
     "subnet_ping",
 ]
 
@@ -79,8 +80,12 @@ WSGI_APPLICATION = "subnet_ping_app.wsgi.application"
 
 DATABASES = {
     "default": {
-        "ENGINE": "django.db.backends.sqlite3",
-        "NAME": BASE_DIR / "db.sqlite3",
+        "ENGINE": "django.db.backends.postgresql_psycopg2",
+        "NAME": "postgres",
+        "USER": "postgres",
+        "PASSWORD": "postgres",
+        "HOST": os.environ.get("POSTGRES_HOST", "localhost"),
+        "PORT": "5432",
     }
 }
 
@@ -123,15 +128,23 @@ STATIC_URL = "static/"
 
 REST_FRAMEWORK = {
     # YOUR SETTINGS
-    'DEFAULT_SCHEMA_CLASS': 'drf_spectacular.openapi.AutoSchema',
+    "DEFAULT_SCHEMA_CLASS": "drf_spectacular.openapi.AutoSchema",
+}
+
+CACHES = {
+    "default": {
+        "BACKEND": "django_redis.cache.RedisCache",
+        "LOCATION": os.environ.get("REDIS_CACHE", "redis://localhost:6379/"),
+        "OPTIONS": {"CLIENT_CLASS": "django_redis.client.DefaultClient"},
+    }
 }
 
 SPECTACULAR_SETTINGS = {
-    'TITLE': 'Subnet Ping App',
-    'DESCRIPTION': '',
-    'VERSION': '1.0.0',
-    'COMPONENT_SPLIT_REQUEST': True,
-    'SERVE_INCLUDE_SCHEMA': False,
+    "TITLE": "Subnet Ping App",
+    "DESCRIPTION": "",
+    "VERSION": "1.0.0",
+    "COMPONENT_SPLIT_REQUEST": True,
+    "SERVE_INCLUDE_SCHEMA": False,
 }
 
 # Default primary key field type
@@ -139,7 +152,7 @@ SPECTACULAR_SETTINGS = {
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
-CELERY_BROKER_URL = "redis://localhost:6379"
+CELERY_BROKER_URL = os.environ.get("REDIS_CACHE", "redis://localhost:6379")
 CELERY_TASK_SERIALIZER = "json"
 CELERY_TASK_TRACK_STARTED = True
 CELERY_TASK_DEFAULT_QUEUE = "celery.subnet_ping.default"

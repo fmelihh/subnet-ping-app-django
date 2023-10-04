@@ -13,9 +13,9 @@ class SubnetPingRegistrySerializer(serializers.Serializer):
 
 
 class SubnetPingResultRetrieverSerializer(serializers.Serializer):
-    ip_subnet_mask = serializers.CharField()
     start = serializers.IntegerField(default=0)
     per_page = serializers.IntegerField(default=10)
+    ip_subnet_mask = serializers.CharField(default=None)
 
     def create(self, validated_data):
         pass

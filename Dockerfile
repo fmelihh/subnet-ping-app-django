@@ -33,6 +33,4 @@ RUN poetry install --no-root --no-dev -vvv
 
 WORKDIR /app
 
-CMD ["poetry", "shell"]
-CMD ["python", "manage.py", "subnet_ping"]
-CMD ["python", "manage.py", "migrate"]
+CMD ["/app/docker-entrypoint.sh"]

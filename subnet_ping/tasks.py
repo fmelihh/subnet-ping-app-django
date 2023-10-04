@@ -16,7 +16,8 @@ def ping_task(ip: str, subnet_mask: int):
 
         responses.append(
             {
-                "destination": str(sub_ip),
+                "requested_ip": str(sub_ip),
+                "destination": ip_subnet_mask,
                 "type": "IPv4" if sub_ip.info["IPv4"] else "IPv6",
                 "status": ping(ip_addr=str(sub_ip)),
             }

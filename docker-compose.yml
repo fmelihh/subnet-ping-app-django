@@ -32,13 +32,18 @@ services:
     hostname: subnet-ping-app
     container_name: subnet-ping-app
     user: root
-    command: "python manage.py runserver 0.0.0.0:8000"
+    command: >
+      sh -c "python manage.py collectstatic --noinput &&
+             python manage.py migrate &&
+             python manage.py runserver 0.0.0.0:8000"
     ports:
       - "8000:8000"
     depends_on:
       - redis
+      - postgres
     volumes:
       - .:/app
+
 
   celery_worker:
     hostname: subnet-ping-app-django-celery-worker

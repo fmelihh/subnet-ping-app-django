@@ -63,40 +63,50 @@ class SubnetPingResultRetrieverViewSet(APIView):
     def post(self, request):
         serializer = SubnetPingResultRetrieverSerializer(data=request.data)
         if not serializer.is_valid():
-            return Response({"errors": serializer.errors}, status.HTTP_400_BAD_REQUEST)
+            return Response({"errors": serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
 
         start = serializer.validated_data["start"]
         per_page = serializer.validated_data["per_page"]
         ip_subnet_mask = serializer.validated_data["ip_subnet_mask"]
 
-        results = cache.get(ip_subnet_mask)
-        if results is not None:
-            return Response(
-                {
-                    "start": start,
-                    "per_page": per_page,
-                    "total": len(results),
-                    "results": results[start:start+per_page]
-                }
-            )
+        start = 0 if start is None else start
+        per_page = 10 if per_page is None else per_page
 
-        results = []
-        total = SubnetPingInfo.objects.count()
-        for orm_model in SubnetPingInfo.objects.all()[start:start+per_page]:
-            converted_record = orm_model.__dict__
-            del converted_record["id"]
-            del converted_record["_state"]
+        resp = {"start": start, "per_page": per_page}
+        cache_results = self.get_cache_results(ip_subnet_mask)
 
-            results.append(converted_record)
+        if cache_results is not None:
+            resp["total"] = len(cache_results)
+            resp["results"] = cache_results[start:start + per_page]
+        else:
+            query_set = self.get_queryset(ip_subnet_mask)
+            records = self.retrieve_records(query_set, start, per_page)
+            resp["results"] = records
+            resp["total"] = len(query_set)
 
-        return Response(
-            {
-                "start": start,
-                "per_page": per_page,
-                "total": total,
-                "results": results
-            }
-        )
+        return Response(resp, status=status.HTTP_200_OK)
 
+    @staticmethod
+    def get_cache_results(ip_subnet_mask):
+        if ip_subnet_mask is None:
+            return None
 
+        cache_results = cache.get(ip_subnet_mask)
+        return cache_results
+
+    @staticmethod
+    def get_queryset(ip_subnet_mask):
+        filters = {}
+        if ip_subnet_mask:
+            filters["destination"] = ip_subnet_mask
+
+        return SubnetPingInfo.objects.filter(**filters).values()
+
+    @staticmethod
+    def retrieve_records(query_set, start, per_page):
+        records = []
+        for orm_model in query_set[start:start + per_page]:
+            del orm_model["id"]
+            records.append(orm_model)
+        return records
 

@@ -5,6 +5,7 @@ from django.utils import timezone
 
 
 class SubnetPingInfo(models.Model):
+    requested_ip = models.CharField()
     destination = models.CharField()
     type = models.CharField()
     status = models.BooleanField()
